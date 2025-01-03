@@ -27,6 +27,7 @@ guard let model = llama_load_model_from_file(modelPath.cString(using: .utf8), mo
     print("Failed to load model")
     exit(1)
 }
+
 defer {
     llama_free_model(model)
 }
@@ -46,6 +47,7 @@ guard context != nil else {
     print("Failed to initialize context")
     exit(1)
 }
+
 defer {
     llama_free(context)
 }
@@ -57,21 +59,24 @@ guard smpl != nil else {
     print("Failed to initialize sampling")
     exit(1)
 }
+
 defer {
     llama_sampler_free(smpl)
 }
 
-llama_sampler_chain_add(smpl, llama_sampler_init_top_k(40));
-llama_sampler_chain_add(smpl, llama_sampler_init_top_p(0.9, 1));
-llama_sampler_chain_add(smpl, llama_sampler_init_temp (0.4));
-llama_sampler_chain_add(smpl, llama_sampler_init_dist (1234));
+llama_sampler_chain_add(smpl, llama_sampler_init_top_k(40))
+llama_sampler_chain_add(smpl, llama_sampler_init_top_p(0.9, 1))
+llama_sampler_chain_add(smpl, llama_sampler_init_temp(0.4))
+llama_sampler_chain_add(smpl, llama_sampler_init_dist(1234))
 
 let n_ctx = llama_n_ctx(context)
 
-print("\nn_len = \(n_len), n_ctx = \(n_ctx), n_batch = \(context_params.n_batch), n_parallel = \(n_parallel), n_kv_req = \(n_kv_req)\n")
+print(
+    "\nn_len = \(n_len), n_ctx = \(n_ctx), n_batch = \(context_params.n_batch), n_parallel = \(n_parallel), n_kv_req = \(n_kv_req)\n"
+)
 
 if n_kv_req > n_ctx {
-    print("error: n_kv_req (%d) > n_ctx, the required KV cache size is not big enough\n", n_kv_req)
+    print("error: n_kv_req (%d) > n_ctx, the required KV cache size is not big enough \ n", n_kv_req)
     exit(1)
 }
 
@@ -192,13 +197,15 @@ while n_cur <= n_len {
 if n_parallel > 1 {
     print("\n")
     for (i, stream) in streams.enumerated() {
-        print("sequence \(i):\n\n\(prompt)\(stream)\n")
+        print("sequence \(i):\n \ n\(prompt)\(stream)\n")
     }
 }
 
 let t_main_end = ggml_time_us()
 
-print("decoded \(n_decode) tokens in \(String(format: "%.2f", Double(t_main_end - t_main_start) / 1_000_000.0)) s, speed: \(String(format: "%.2f", Double(n_decode) / (Double(t_main_end - t_main_start) / 1_000_000.0))) t/s\n\n")
+print(
+    "decoded \(n_decode) tokens in \(String(format: "%.2f", Double(t_main_end - t_main_start) / 1_000_000.0)) s, speed: \(String(format: "%.2f", Double(n_decode) / (Double(t_main_end - t_main_start) / 1_000_000.0))) t/s\n\n"
+)
 
 llama_perf_sampler_print(smpl)
 llama_perf_context_print(context)
@@ -207,7 +214,15 @@ private func tokenize(text: String, add_bos: Bool) -> [llama_token] {
     let utf8Count = text.utf8.count
     let n_tokens = utf8Count + (add_bos ? 1 : 0)
     let tokens = UnsafeMutablePointer<llama_token>.allocate(capacity: n_tokens)
-    let tokenCount = llama_tokenize(model, text, Int32(utf8Count), tokens, Int32(n_tokens), add_bos, /*special tokens*/ false)
+    let tokenCount = llama_tokenize(
+        model,
+        text,
+        Int32(utf8Count),
+        tokens,
+        Int32(n_tokens),
+        add_bos, /* special tokens */
+        false
+    )
     var swiftTokens: [llama_token] = []
     for i in 0 ..< tokenCount {
         swiftTokens.append(tokens[Int(i)])
@@ -239,7 +254,9 @@ private func token_to_piece(token: llama_token, buffer: inout [CChar]) -> String
     } else {
         buffer.append(contentsOf: result)
         let data = Data(buffer.map { UInt8(bitPattern: $0) })
-        if buffer.count >= 4 { // 4 bytes is the max length of a utf8 character so if we're here we need to reset the buffer
+        if buffer
+            .count >= 4
+        { // 4 bytes is the max length of a utf8 character so if we're here we need to reset the buffer
             buffer = []
         }
         guard let bufferString = String(data: data, encoding: .utf8) else {

@@ -23,10 +23,10 @@ struct LoadCustomButton: View {
             allowsMultipleSelection: false
         ) { result in
             switch result {
-            case .success(let files):
-                files.forEach { file in
+            case let .success(files):
+                for file in files {
                     let gotAccess = file.startAccessingSecurityScopedResource()
-                    if !gotAccess { return }
+                    if !gotAccess { continue }
 
                     do {
                         try llamaState.loadModel(modelUrl: file.absoluteURL)
@@ -36,7 +36,7 @@ struct LoadCustomButton: View {
 
                     file.stopAccessingSecurityScopedResource()
                 }
-            case .failure(let error):
+            case let .failure(error):
                 print(error)
             }
         }

@@ -16,8 +16,7 @@ struct DownloadButton: View {
         FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent(filename)
     }
 
-    private func checkFileExistenceAndUpdateStatus() {
-    }
+    private func checkFileExistenceAndUpdateStatus() {}
 
     init(llamaState: LlamaState, modelName: String, modelUrl: String, filename: String) {
         self.llamaState = llamaState
@@ -41,7 +40,7 @@ struct DownloadButton: View {
                 return
             }
 
-            guard let response = response as? HTTPURLResponse, (200...299).contains(response.statusCode) else {
+            guard let response = response as? HTTPURLResponse, (200 ... 299).contains(response.statusCode) else {
                 print("Server error!")
                 return
             }
@@ -101,7 +100,7 @@ struct DownloadButton: View {
                 Text("Unknown status")
             }
         }
-        .onDisappear() {
+        .onDisappear {
             downloadTask?.cancel()
         }
         .onChange(of: llamaState.cacheCleared) { newValue in
@@ -118,7 +117,7 @@ struct DownloadButton: View {
 //    DownloadButton(
 //        llamaState: LlamaState(),
 //        modelName: "TheBloke / TinyLlama-1.1B-1T-OpenOrca-GGUF (Q4_0)",
-//        modelUrl: "https://huggingface.co/TheBloke/TinyLlama-1.1B-1T-OpenOrca-GGUF/resolve/main/tinyllama-1.1b-1t-openorca.Q4_0.gguf?download=true",
+//        modelUrl: "https://huggingface.co / TheBloke / TinyLlama-1.1B-1T-OpenOrca-GGUF / resolve / main / tinyllama-1.1b-1t-openorca.Q4_0.gguf?download = true",
 //        filename: "tinyllama-1.1b-1t-openorca.Q4_0.gguf"
 //    )
 // }

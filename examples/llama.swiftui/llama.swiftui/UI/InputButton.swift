@@ -13,8 +13,10 @@ struct InputButton: View {
     private static func extractModelInfo(from link: String) -> (modelName: String, filename: String)? {
         guard let url = URL(string: link),
               let lastPathComponent = url.lastPathComponent.components(separatedBy: ".").first,
-              let modelName = lastPathComponent.components(separatedBy: "-").dropLast().joined(separator: "-").removingPercentEncoding,
-              let filename = lastPathComponent.removingPercentEncoding else {
+              let modelName = lastPathComponent.components(separatedBy: "-").dropLast().joined(separator: "-")
+                  .removingPercentEncoding,
+                  let filename = lastPathComponent.removingPercentEncoding
+        else {
             return nil
         }
 
@@ -32,7 +34,7 @@ struct InputButton: View {
         }
 
         let (modelName, filename) = extractedInfo
-        self.filename = filename  // Set the state variable
+        self.filename = filename // Set the state variable
 
         status = "downloading"
         print("Downloading model \(modelName) from \(inputLink)")
@@ -45,7 +47,7 @@ struct InputButton: View {
                 return
             }
 
-            guard let response = response as? HTTPURLResponse, (200...299).contains(response.statusCode) else {
+            guard let response = response as? HTTPURLResponse, (200 ... 299).contains(response.statusCode) else {
                 print("Server error!")
                 return
             }
@@ -117,7 +119,7 @@ struct InputButton: View {
                 Text("Unknown status")
             }
         }
-        .onDisappear() {
+        .onDisappear {
             downloadTask?.cancel()
         }
         .onChange(of: llamaState.cacheCleared) { newValue in

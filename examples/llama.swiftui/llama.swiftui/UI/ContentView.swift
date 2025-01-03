@@ -3,7 +3,7 @@ import SwiftUI
 struct ContentView: View {
     @StateObject var llamaState = LlamaState()
     @State private var multiLineText = ""
-    @State private var showingHelp = false    // To track if Help Sheet should be shown
+    @State private var showingHelp = false // To track if Help Sheet should be shown
 
     var body: some View {
         NavigationView {
@@ -14,7 +14,12 @@ struct ContentView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding()
                         .onTapGesture {
-                            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                            UIApplication.shared.sendAction(
+                                #selector(UIResponder.resignFirstResponder),
+                                to: nil,
+                                from: nil,
+                                for: nil
+                            )
                         }
                 }
 
@@ -47,11 +52,9 @@ struct ContentView: View {
                     Text("View Models")
                 }
                 .padding()
-
             }
             .padding()
             .navigationBarTitle("Model Settings", displayMode: .inline)
-
         }
     }
 
@@ -73,12 +76,12 @@ struct ContentView: View {
             await llamaState.clear()
         }
     }
-    struct DrawerView: View {
 
+    struct DrawerView: View {
         @ObservedObject var llamaState: LlamaState
         @State private var showingHelp = false
         func delete(at offsets: IndexSet) {
-            offsets.forEach { offset in
+            for offset in offsets {
                 let model = llamaState.downloadedModels[offset]
                 let fileURL = getDocumentsDirectory().appendingPathComponent(model.filename)
                 do {
@@ -96,6 +99,7 @@ struct ContentView: View {
             let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
             return paths[0]
         }
+
         var body: some View {
             List {
                 Section(header: Text("Download Models From Hugging Face")) {
@@ -105,16 +109,25 @@ struct ContentView: View {
                 }
                 Section(header: Text("Downloaded Models")) {
                     ForEach(llamaState.downloadedModels) { model in
-                        DownloadButton(llamaState: llamaState, modelName: model.name, modelUrl: model.url, filename: model.filename)
+                        DownloadButton(
+                            llamaState: llamaState,
+                            modelName: model.name,
+                            modelUrl: model.url,
+                            filename: model.filename
+                        )
                     }
                     .onDelete(perform: delete)
                 }
                 Section(header: Text("Default Models")) {
                     ForEach(llamaState.undownloadedModels) { model in
-                        DownloadButton(llamaState: llamaState, modelName: model.name, modelUrl: model.url, filename: model.filename)
+                        DownloadButton(
+                            llamaState: llamaState,
+                            modelName: model.name,
+                            modelUrl: model.url,
+                            filename: model.filename
+                        )
                     }
                 }
-
             }
             .listStyle(GroupedListStyle())
             .navigationBarTitle("Model Settings", displayMode: .inline).toolbar {
@@ -123,16 +136,16 @@ struct ContentView: View {
                         showingHelp = true
                     }
                 }
-            }.sheet(isPresented: $showingHelp) {    // Sheet for help modal
+            }.sheet(isPresented: $showingHelp) { // Sheet for help modal
                 VStack(alignment: .leading) {
                     VStack(alignment: .leading) {
                         Text("1. Make sure the model is in GGUF Format")
-                               .padding()
+                            .padding()
                         Text("2. Copy the download link of the quantized model")
-                               .padding()
+                            .padding()
                     }
                     Spacer()
-                   }
+                }
             }
         }
     }
